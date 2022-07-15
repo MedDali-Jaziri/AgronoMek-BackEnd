@@ -12,9 +12,24 @@ const addNotification = async (req, res) => {
         let info = {
             verify: req.body.verify,
             message: req.body.message,
-            User_Id: req.body.User_Id,
+            email: req.body.email,
         }
         console.log(info)
+
+        try{
+            var user = await User.findOne({
+                where: {
+                    email: email,
+                }
+            })
+            info.email = user.id
+        }
+        catch(e){
+            console.log(e)
+            res.status(422).send({
+                error: "We didn't have this email: "+email+" !!"
+            })
+        }
 
         if(!info.message || !info.User_Id){
             res.status(422).send({
