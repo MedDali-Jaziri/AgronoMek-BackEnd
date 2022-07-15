@@ -17,12 +17,25 @@ const addNotification = async (req, res) => {
         console.log(info)
 
         try{
-            var user = await User.findOne({
+            const user = await User.findOne({
                 where: {
                     email: info.email,
                 }
             })
-            info.email = user.id
+            console.log(user.id)
+            let infoSend = {
+                verify: req.body.verify,
+                message: req.body.message,
+                User_Id: user.id
+            }
+            if(!info.message || !info.email){
+                res.status(422).send({
+                    error: "Please add all the fields"
+                })
+            }
+            const notification = await Notification.create(infoSend)
+            res.status(200).send(notification)
+            console.log(notification)
         }
         catch(e){
             console.log(e)
@@ -30,15 +43,6 @@ const addNotification = async (req, res) => {
                 error: "We didn't have this email: "+email+" !!"
             })
         }
-
-        if(!info.message || !info.email){
-            res.status(422).send({
-                error: "Please add all the fields"
-            })
-        }
-        const notification = await Notification.create(info)
-        res.status(200).send(notification)
-        console.log(notification)
     }
     catch(e){
         console.log(e)
@@ -77,7 +81,7 @@ function sendEmail(email, type) {
             from: 'agronomekit@gmail.com',
             to: email,
             subject: 'Email verification - AgronoMek Application',
-            html: 'Hello Dear, <br> Welcome in your AgronoMek Application <br> <p>Your requested for email verification kindly use this <a href="http://localhost:3030/api/notification/activationLink/'+email+'">link</a> to verify your email address</p><br> If you ignore this email you cannot login to agronoMek-Application <br> Thank you very much :) :) <br> Technical service: +216 53 786 397 / +216 50 442 930'
+            html: 'Hello Dear, <br> Welcome in your AgronoMek Application <br> <p>Your requested for email verification kindly use this <a href="http://20.219.96.163/api/notification/activationLink/'+email+'">link</a> to verify your email address</p><br> If you ignore this email you cannot login to agronoMek-Application <br> Thank you very much :) :) <br> Technical service: +216 53 786 397 / +216 50 442 930'
         }
     }
     else if(type="forgetPassword"){
