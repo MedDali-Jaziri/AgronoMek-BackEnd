@@ -19,7 +19,7 @@ const addNotification = async (req, res) => {
         try{
             var user = await User.findOne({
                 where: {
-                    email: email,
+                    email: info.email,
                 }
             })
             info.email = user.id
@@ -31,7 +31,7 @@ const addNotification = async (req, res) => {
             })
         }
 
-        if(!info.message || !info.User_Id){
+        if(!info.message || !info.email){
             res.status(422).send({
                 error: "Please add all the fields"
             })
