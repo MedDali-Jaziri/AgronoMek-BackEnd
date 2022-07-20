@@ -14,6 +14,4 @@ routerUser.post('/getAllNotificationOfSpecificationUser', userController.getAllN
 
 routerUser.post('/forgetPassword', userController.forgetPassword)
 
-routerUser.post('/testThepasswordUpdate', userController.testThepasswordUpdate)
-
 module.exports = routerUser

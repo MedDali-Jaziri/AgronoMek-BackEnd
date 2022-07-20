@@ -12,6 +12,7 @@ const Notification = db.notifications
 
 // Call another controllers
 const notificationController = require('./notificationController.js');
+
 // Main of work
 
 // 1. Create an user
@@ -233,59 +234,66 @@ const forgetPassword = async (req, res) => {
                     email: email,
                 }
             })
-            var send = notificationController.sendEmail(email,type="forgetPassword")
-            console.log('Check the value of send')
-            console.log(send)
-            if(send !=0){
-                // Create an new notification
-                let newNotification = {
-                    verify: true,
-                    message: "AgronoMek changed it your password",
-                    User_Id: user.id,
-                }
-                const notification = await Notification.create(newNotification)
-                console.log(notification)
-                // Change the password of the user
-                password = "AgronoMek-App"
-                User.findByPk(user.id).then((userInfo) => {
-                    if(userInfo.password !== password){
-                        const salt = bcrypt.genSaltSync(10)
-                        newPassword = bcrypt.hashSync(password, salt)
-                        password = newPassword
-                    }
-                    return password;
+            if(!user.email){
+                res.status(404).send({
+                    message: "Check your email :( :( !!"
                 })
-                .then((password) =>{
-                    User.update({
-                        password: password,
-                    },
-                    {
-                        where: {
-                            email: user.email,
-                            id: user.id
-                        }
-                    }
-
-                    ).then((response) => {
-                        console.log("response after update", response);
-                        res.status(200).json({
-                            message: `User ${user.userName} has been updated`,
-                            new_password: user.getDataValue('password')
-                        
-                        });
-                    }).catch((err) =>{
-                        console.log(err);
-                        res
-                            .status(500)
-                            .json({ message: "Something went wrong updating the user" });
-                        });
-                    })
-                
             }
             else{
-                type = 'error'
-                msg = 'Something goes to wrong. Please try again'
-                res.status(200).json({ message: `User ${user.id} has not been updated` });
+                var send = notificationController.sendEmail(email,type="forgetPassword")
+                console.log('Check the value of send')
+                console.log(send)
+                if(send !=0){
+                    // Create an new notification
+                    let newNotification = {
+                        verify: true,
+                        message: "AgronoMek changed it your password",
+                        User_Id: user.id,
+                    }
+                    const notification = await Notification.create(newNotification)
+                    console.log(notification)
+                    // Change the password of the user
+                    password = "AgronoMek-App"
+                    User.findByPk(user.id).then((userInfo) => {
+                        if(userInfo.password !== password){
+                            const salt = bcrypt.genSaltSync(10)
+                            newPassword = bcrypt.hashSync(password, salt)
+                            password = newPassword
+                        }
+                        return password;
+                    })
+                    .then((password) =>{
+                        User.update({
+                            password: password,
+                        },
+                        {
+                            where: {
+                                email: user.email,
+                                id: user.id
+                            }
+                        }
+
+                        ).then((response) => {
+                            console.log("response after update", response);
+                            res.status(200).json({
+                                message: `User ${user.userName} has been updated`,
+                                new_password: user.getDataValue('password')
+                            
+                            });
+                        }).catch((err) =>{
+                            console.log(err);
+                            res
+                                .status(500)
+                                .json({ message: "Something went wrong updating the user" });
+                            });
+                        })
+                    
+                }
+                else{
+                    type = 'error'
+                    msg = 'Something goes to wrong. Please try again'
+                    res.status(200).json({ message: `User ${user.id} has not been updated` });
+                }
             }
         }
         catch(e){
@@ -303,15 +311,7 @@ const forgetPassword = async (req, res) => {
     }
 }
 
-const testThepasswordUpdate = async (req, res) => {
-    let email = req.body.email
-    let user = await User.findOne({
-        where: {
-            email: email,
-        }
-    })
-    
-}
+
 
 module.exports = {
     addUser,
@@ -321,5 +321,4 @@ module.exports = {
     getAllNotificationOfSpecificationUser,
     upload,
     forgetPassword,
-    testThepasswordUpdate
 }

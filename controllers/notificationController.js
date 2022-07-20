@@ -81,7 +81,7 @@ function sendEmail(email, type) {
             from: 'agronomekit@gmail.com',
             to: email,
             subject: 'Email verification - AgronoMek Application',
-            html: 'Hello Dear, <br> Welcome in your AgronoMek Application <br> <p>Your requested for email verification kindly use this <a href="http://20.219.96.163/api/notification/activationLink/'+email+'">link</a> to verify your email address</p><br> If you ignore this email you cannot login to agronoMek-Application <br> Thank you very much :) :) <br> Technical service: +216 53 786 397 / +216 50 442 930'
+            html: 'Hello Dear, <br> Welcome in your AgronoMek Application <br> <p>Your requested for email verification kindly use this <a href="http://37.59.204.222/api/notification/activationLink/'+email+'">link</a> to verify your email address</p><br> If you ignore this email you cannot login to agronoMek-Application <br> Thank you very much :) :) <br> Technical service: +216 53 786 397 / +216 50 442 930'
         }
     }
     else if(type="forgetPassword"){
@@ -119,17 +119,20 @@ const sendVerificationLink = async (req, res) => {
         let msg = 'Email already verified'
 
         const data = await User.findOne({
-            include: [{
-                model: Notification,
-                as: 'notification'
-            }],
             where: {
                 email: email,
-            }
+            },
+            include: [{
+                model: Notification,
+                as: 'notification',
+                // sequelize: true
+            }]
         })
+
         let verificationValue = data.notification[0][Object.keys(data.notification[0])[0]].verify
         let notificationId = data.notification[0][Object.keys(data.notification[0])[0]].id
         let userId = data.notification[0][Object.keys(data.notification[0])[0]].User_Id
+
         if(verificationValue == false){
             var send = sendEmail(email, type="verificationLink")
             console.log(send)
