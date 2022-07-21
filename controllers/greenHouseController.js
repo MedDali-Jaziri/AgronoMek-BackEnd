@@ -172,9 +172,19 @@ const getInformationForHomePage = async (req, res) => {
         var oneGreenHouse = dbFireBase.ref('AgronoMekDB/'+ idGreenHouse + '/')
 
         oneGreenHouse.once('value', function(snap){
+            const objectTemperature = snap.val().Temperature;
+            const lastKeyValueOfTemperature = Object.keys(objectTemperature).pop();
+            const lastValueOfTemperature = objectTemperature[lastKeyValueOfTemperature];
+
+            const objectHumidity = snap.val().Humidity;
+            const lastKeyValueOfTHumidity = Object.keys(objectHumidity).pop();
+            const lastValueOfHumidity = objectHumidity[lastKeyValueOfTHumidity];
+
            res.status(200).send({
-            resultOfGreenHouse: snap.val()
-        })
+            nameOfGreenHouse: snap.val().Name_GreenHouse,
+            valueOfTemperature: lastValueOfTemperature,
+            valueOfHumidity: lastValueOfHumidity,
+            })
         });
 
     }
