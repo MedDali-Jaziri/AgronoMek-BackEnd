@@ -56,6 +56,8 @@ const matchTheGreenHouseAndUser = async (req, res) => {
 
         var dbFireBase = admin.database();
         dbFireBase.ref('AgronoMekDB/'+ idGreenHouse + '/User_Id').set(user.id)
+        user.connectedToGreenHouse = true;
+        await user.save();
 
         res.status(200).send({
             Result_Matching: "We just match the greenhouse "+idGreenHouse+" with the user "+user.userName
@@ -157,11 +159,12 @@ const getInformationForHomePage = async (req, res) => {
         var user = await User.findOne({
             where: {
                 email: email,
+                connectedToGreenHouse: true
             }
         })
         if(!user.email){
             res.status(404).send({
-                message: "Check your email :( :( !!"
+                message: "Your Greenhouse is already matching :( :( !!"
             })
         }
 

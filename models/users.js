@@ -58,6 +58,11 @@ module.exports = (sequelize, DataType) => {
       type: DataType.STRING,
       allowNull: false,
     },
+    connectedToGreenHouse: {
+      field: "Connected_To_GreenHouse",
+      type: DataType.BOOLEAN,
+      defaultValue: false,
+    },
   },
 //   {
 //     freezeTableName: true,
