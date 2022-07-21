@@ -6,4 +6,6 @@ routerUser.post('/matchTheGreenHouseAndUser', greenHouseController.matchTheGreen
 
 routerUser.post('/getAllInformationOfSpecficGreenHouse', greenHouseController.getAllInformationOfSpecficGreenHouse)
 
+routerUser.post('/getInformationForHomePage', greenHouseController.getInformationForHomePage)
+
 module.exports = routerUser
