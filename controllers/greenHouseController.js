@@ -40,48 +40,60 @@ const matchTheGreenHouseAndUser = async (req, res) => {
         var email = parseJwt(info.tokenId).email;
         var idGreenHouse = parseJwt(info.payload).Id_AgronoMek;
 
-        var user = await User.findOne({
+        var userInformation = await User.findOne({
             where: {
-                email: email,
-                connectedToGreenHouse: false
+                idGreenHouse: idGreenHouse,
             }
         })
-        if(!user.email){
+
+        if(!userInformation){
             res.status(404).send({
                 message: "Your Greenhouse is already matching :( :( !!"
             })
         }
-
-        console.log(idGreenHouse);
-        console.log(user.id);
-
-        var dbFireBase = admin.database();
-        dbFireBase.ref('AgronoMekDB/'+ idGreenHouse + '/User_Id').set(user.id)
-        user.connectedToGreenHouse = true;
-        await user.save();
-
-        res.status(200).send({
-            Result_Matching: "We just match the greenhouse "+idGreenHouse+" with the user "+user.userName
-        })
-        
-
-        // var oneGreenHouse = agronoMek.child(idGreenHouse)
-
-        // oneGreenHouse.once('value', function(snap){
-        //    res.status(200).send({
-        //     resultOfGreenHouse: snap.val()
-        // })
-        // });
-        
-        // console.log("This is the result of Agronomek table");
-        // console.log(dbRef);
-
-
-        // res.status(200).send({
-        //     Token: parseJwt(info.tokenId),
-        //     QrCode: parseJwt(info.payload)
-        // })
-
+        else{
+            var user = await User.findOne({
+                where: {
+                    email: email,
+                }
+            })
+            if(!user.email){
+                res.status(404).send({
+                    message: "Your Greenhouse is already matching :( :( !!"
+                })
+            }
+    
+            console.log(idGreenHouse);
+            console.log(user.id);
+    
+            var dbFireBase = admin.database();
+            dbFireBase.ref('AgronoMekDB/'+ idGreenHouse + '/User_Id').set(user.id)
+            user.connectedToGreenHouse = true;
+            user.idGreenHouse = idGreenHouse
+            await user.save();
+    
+            res.status(200).send({
+                Result_Matching: "We just match the greenhouse "+idGreenHouse+" with the user "+user.userName
+            })
+            
+    
+            // var oneGreenHouse = agronoMek.child(idGreenHouse)
+    
+            // oneGreenHouse.once('value', function(snap){
+            //    res.status(200).send({
+            //     resultOfGreenHouse: snap.val()
+            // })
+            // });
+            
+            // console.log("This is the result of Agronomek table");
+            // console.log(dbRef);
+    
+    
+            // res.status(200).send({
+            //     Token: parseJwt(info.tokenId),
+            //     QrCode: parseJwt(info.payload)
+            // })
+        }
 
     }
     catch(e){
