@@ -90,7 +90,7 @@ const matchTheGreenHouseAndUser = async (req, res) => {
 }
 
 
-// 1. Get All the Information Of an Specfic GreenHouse
+// 2. Get All the Information Of an Specfic GreenHouse
 const getAllInformationOfSpecficGreenHouse = async (req, res) => {
     try{
         let info = {
@@ -138,7 +138,57 @@ const getAllInformationOfSpecficGreenHouse = async (req, res) => {
     }
 }
 
+// 2. Get some specific information for home page (Name_GreenHouse, Temperature value (last one), Humidity value (last one))
+const getInformationForHomePage = async (req, res) => {
+    try{
+        let info = {
+            tokenId: req.body.tokenId,
+            payload: req.body.payload,
+        }
+    
+        if(!info.tokenId || !info.payload){
+            res.status(422).send({
+                error: "Please add all the fields"
+            })
+        }
+        var email = parseJwt(info.tokenId).email;
+        var idGreenHouse = parseJwt(info.payload).Id_AgronoMek;
+
+        var user = await User.findOne({
+            where: {
+                email: email,
+            }
+        })
+        if(!user.email){
+            res.status(404).send({
+                message: "Check your email :( :( !!"
+            })
+        }
+
+        console.log(idGreenHouse);
+        console.log(user.id);
+
+        var dbFireBase = admin.database();
+        var oneGreenHouse = dbFireBase.ref('AgronoMekDB/'+ idGreenHouse + '/')
+
+        oneGreenHouse.once('value', function(snap){
+           res.status(200).send({
+            resultOfGreenHouse: snap.val()
+        })
+        });
+
+    }
+    catch(e){
+        console.log(e)
+        res.status(404).send({
+            message: "There is an error !!"
+        })
+    }
+}
+
+
 module.exports = {
     matchTheGreenHouseAndUser,
-    getAllInformationOfSpecficGreenHouse
+    getAllInformationOfSpecficGreenHouse,
+    getInformationForHomePage
 }
