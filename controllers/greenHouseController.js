@@ -43,11 +43,12 @@ const matchTheGreenHouseAndUser = async (req, res) => {
         var user = await User.findOne({
             where: {
                 email: email,
+                connectedToGreenHouse: false
             }
         })
         if(!user.email){
             res.status(404).send({
-                message: "Check your email :( :( !!"
+                message: "Your Greenhouse is already matching :( :( !!"
             })
         }
 
