@@ -45,13 +45,8 @@ const matchTheGreenHouseAndUser = async (req, res) => {
                 idGreenHouse: idGreenHouse,
             }
         })
-
+        
         if(!userInformation){
-            res.status(404).send({
-                message: "Your Greenhouse is already matching :( :( !!"
-            })
-        }
-        else{
             var user = await User.findOne({
                 where: {
                     email: email,
@@ -93,6 +88,11 @@ const matchTheGreenHouseAndUser = async (req, res) => {
             //     Token: parseJwt(info.tokenId),
             //     QrCode: parseJwt(info.payload)
             // })
+        }
+        else{
+            res.status(404).send({
+                message: "Your Greenhouse is already matching :( :( !!"
+            })
         }
 
     }
