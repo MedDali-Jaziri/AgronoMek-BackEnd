@@ -23,7 +23,8 @@ const addUser = async (req, res) => {
             email: req.body.email,
             password: req.body.password,
             image: req.file.path,
-            country: req.body.country
+            country: req.body.country,
+            connectedToGreenHouse: req.body.connectedToGreenHouse
         }
 
         if(!info.userName || !info.email || !info.image || !info.password || !info){
