@@ -63,11 +63,11 @@ module.exports = (sequelize, DataType) => {
       type: DataType.BOOLEAN,
       defaultValue: false,
     },
-    idGreenHouse: {
-      field: "Id_GreenHouse",
-      type: DataType.STRING,
-      allowNull: false,
-    },
+    // idGreenHouse: {
+    //   field: "Id_GreenHouse",
+    //   type: DataType.STRING,
+    //   allowNull: false,
+    // },
     
   },
 //   {
