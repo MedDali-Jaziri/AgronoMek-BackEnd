@@ -9,11 +9,6 @@ module.exports = (sequelize, DataType) => {
       allowNull: false,
       primaryKey: true,
     },
-    // token: {
-    //   field: "Id_Token",
-    //   type: DataType.STRING,
-    //   allowNull: false,
-    // },
     verify: {
       field: "Verify_Value",
       type: DataType.BOOLEAN,
@@ -25,19 +20,5 @@ module.exports = (sequelize, DataType) => {
         allowNull: false,
       },
   });
-
-//   Notification.belongsTo(User,{
-//     foreignKey: 'User_Id',
-//     as: 'user' 
-//   });
-
-//   Notification.associate = (models) => {
-//     Notification.belongsTo(models.User, {
-//       foreignKey:{
-//         field: 'User_Id',
-//         allowNull: false
-//       }
-//     });
-//   };
   return Notification;
 };

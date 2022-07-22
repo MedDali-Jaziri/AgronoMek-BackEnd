@@ -44,7 +44,6 @@ module.exports = (sequelize, DataType) => {
       type: DataType.STRING,
       allowNull: false,
       set(value) {
-        // const hash = bcrypt.hashSync(value, 10);
         this.setDataValue("password", value);
       },
     },
@@ -63,24 +62,8 @@ module.exports = (sequelize, DataType) => {
       type: DataType.BOOLEAN,
       defaultValue: false,
     },
-    // idGreenHouse: {
-    //   field: "Id_GreenHouse",
-    //   type: DataType.STRING,
-    //   allowNull: false,
-    // },
     
   },
-//   {
-//     freezeTableName: true,
-//     instanceMethods: {
-//         generateHash(password) {
-//             return bcrypt.hash(password, bcrypt.genSaltSync(8));
-//         },
-//         validPassword(password) {
-//             return bcrypt.compare(password, this.password);
-//         }
-//     }
-//   }
   );
 
   return User;

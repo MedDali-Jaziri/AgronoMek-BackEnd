@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 // Create main Model
 const User = db.users
-const Notification = db.notifications
+const GreenHouse = db.greenhouses
 
 // Call another controllers
 const notificationController = require('./notificationController.js');
@@ -39,50 +39,46 @@ const matchTheGreenHouseAndUser = async (req, res) => {
         }
         var email = parseJwt(info.tokenId).email;
         var idGreenHouse = parseJwt(info.payload).Id_AgronoMek;
-
         var user = await User.findOne({
             where: {
                 email: email,
             }
         })
-        if(!user.email){
+
+
+        var greenhouse = await GreenHouse.findOne({
+            where: {
+                nameGreenHouse: idGreenHouse,
+                // User_Id: user.id
+            }
+        })
+
+        console.log(greenhouse)
+
+        if(greenhouse){
             res.status(404).send({
                 message: "Your Greenhouse is already matching :( :( !!"
             })
         }
+        else{
+            console.log(idGreenHouse);
+            console.log(user.id);
+    
+            var dbFireBase = admin.database();
+            dbFireBase.ref('AgronoMekDB/'+ idGreenHouse + '/User_Id').set(user.id)
+            user.connectedToGreenHouse = true;
+            await user.save();
 
-        console.log(idGreenHouse);
-        console.log(user.id);
+            let infoSend = {
+                nameGreenHouse: idGreenHouse,
+                User_Id: user.id
+            }
+            await GreenHouse.create(infoSend)
 
-        var dbFireBase = admin.database();
-        dbFireBase.ref('AgronoMekDB/'+ idGreenHouse + '/User_Id').set(user.id)
-        user.connectedToGreenHouse = true;
-        // user.idGreenHouse = idGreenHouse
-        await user.save();
-
-        res.status(200).send({
-            Result_Matching: "We just match the greenhouse "+idGreenHouse+" with the user "+user.userName
-        })
-        
-
-        // var oneGreenHouse = agronoMek.child(idGreenHouse)
-
-        // oneGreenHouse.once('value', function(snap){
-        //    res.status(200).send({
-        //     resultOfGreenHouse: snap.val()
-        // })
-        // });
-        
-        // console.log("This is the result of Agronomek table");
-        // console.log(dbRef);
-
-
-        // res.status(200).send({
-        //     Token: parseJwt(info.tokenId),
-        //     QrCode: parseJwt(info.payload)
-        // })
-
-
+            res.status(200).send({
+                Result_Matching: "We just match the greenhouse "+idGreenHouse+" with the user "+user.userName
+            })
+        }
     }
     catch(e){
         console.log(e)
@@ -92,8 +88,8 @@ const matchTheGreenHouseAndUser = async (req, res) => {
     }
 }
 
-
-// 2. Get All the Information Of an Specfic GreenHouse
+// This function for testing and trying a simple functions
+//  Get All the Information Of an Specfic GreenHouse
 const getAllInformationOfSpecficGreenHouse = async (req, res) => {
     try{
         let info = {
@@ -172,24 +168,38 @@ const getInformationForHomePage = async (req, res) => {
         console.log(idGreenHouse);
         console.log(user.id);
 
-        var dbFireBase = admin.database();
-        var oneGreenHouse = dbFireBase.ref('AgronoMekDB/'+ idGreenHouse + '/')
+        var greenhouse = await GreenHouse.findOne({
+            where: {
+                nameGreenHouse: idGreenHouse,
+                User_Id: user.id
+            }
+        })
 
-        oneGreenHouse.once('value', function(snap){
-            const objectTemperature = snap.val().Temperature;
-            const lastKeyValueOfTemperature = Object.keys(objectTemperature).pop();
-            const lastValueOfTemperature = objectTemperature[lastKeyValueOfTemperature];
-
-            const objectHumidity = snap.val().Humidity;
-            const lastKeyValueOfTHumidity = Object.keys(objectHumidity).pop();
-            const lastValueOfHumidity = objectHumidity[lastKeyValueOfTHumidity];
-
-           res.status(200).send({
-            nameOfGreenHouse: snap.val().Name_GreenHouse,
-            valueOfTemperature: lastValueOfTemperature,
-            valueOfHumidity: lastValueOfHumidity,
+        if(!greenhouse){
+            res.status(404).send({
+                message: "You can't access to this greenHouse :( :( !!"
             })
-        });
+        }
+        else{
+            var dbFireBase = admin.database();
+            var oneGreenHouse = dbFireBase.ref('AgronoMekDB/'+ idGreenHouse + '/')
+
+            oneGreenHouse.once('value', function(snap){
+                const objectTemperature = snap.val().Temperature;
+                const lastKeyValueOfTemperature = Object.keys(objectTemperature).pop();
+                const lastValueOfTemperature = objectTemperature[lastKeyValueOfTemperature];
+
+                const objectHumidity = snap.val().Humidity;
+                const lastKeyValueOfTHumidity = Object.keys(objectHumidity).pop();
+                const lastValueOfHumidity = objectHumidity[lastKeyValueOfTHumidity];
+
+            res.status(200).send({
+                nameOfGreenHouse: snap.val().Name_GreenHouse,
+                valueOfTemperature: lastValueOfTemperature,
+                valueOfHumidity: lastValueOfHumidity,
+                })
+            });   
+        }
 
     }
     catch(e){
@@ -200,9 +210,82 @@ const getInformationForHomePage = async (req, res) => {
     }
 }
 
+function sleep(ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+}
+
+// 3. Get longitude et latitude of an specific user
+const getLatAndLongOfOneUser = async (req, res) => {
+    try{
+        let info = {
+            tokenId: req.body.tokenId,
+        }
+    
+        if(!info.tokenId){
+            res.status(422).send({
+                error: "Please add all the fields"
+            })
+        }
+        var email = parseJwt(info.tokenId).email;
+
+        var user = await User.findOne({
+            where: {
+                email: email,
+            }
+        })
+
+        var greenhouse = await GreenHouse.findAll({
+            where: {
+                User_Id: user.id
+            }
+        })
+        
+        // greenhouse.forEach((element, i) => {
+        //     var dbFireBase = admin.database();
+        //     var oneGreenHouse = dbFireBase.ref('AgronoMekDB/'+ element.nameGreenHouse + '/')
+        //     let finalResultObject=[];
+        //     oneGreenHouse.on('value', function(snap){
+        //         console.log(snap.val().Position)
+        //         finalResultObject.push(snap.val().Position)
+        //         console.log(finalResultObject)
+        //         // finalResultObject=  JSON.stringify(snap.val().Position)
+        //     });
+        //     // console.log(finalResultObject)
+        // });
+        let finalResultObject=[];
+        for(var i=0;i<greenhouse.length;i++){
+            var dbFireBase = admin.database();
+            var oneGreenHouse = dbFireBase.ref('AgronoMekDB/'+ greenhouse[i].nameGreenHouse + '/')
+            oneGreenHouse.once('value', function(snap){
+                console.log(snap.val().Position)
+                finalResultObject.push(snap.val().Position)
+                // console.log(finalResultObject)
+
+            });
+        }
+        // We notice the firebase function take a time to resend our data so for this reason we make a timer for 1 second
+        // To allow our program a time for get what's we need
+        await sleep(1000)
+        console.log(finalResultObject)
+        res.status(200).send({
+            Result: finalResultObject
+        })
+    }
+    catch(e){
+        console.log(e)
+        res.status(404).send({
+            message: "There is an error !!"
+        })
+    }
+}
+
+
 
 module.exports = {
     matchTheGreenHouseAndUser,
     getAllInformationOfSpecficGreenHouse,
-    getInformationForHomePage
+    getInformationForHomePage,
+    getLatAndLongOfOneUser
 }

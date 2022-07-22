@@ -22,6 +22,7 @@ app.use(express.urlencoded({
 const routerUser = require('./routes/userRouter.js')
 const routerNotification = require('./routes/notificationRouter.js')
 const routerGreenHouse = require('./routes/greenHouseRouter.js')
+
 app.use('/api/user',routerUser)
 app.use('/api/notification',routerNotification)
 app.use('/api/greenHouse/', routerGreenHouse)
