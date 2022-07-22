@@ -8,4 +8,6 @@ routerUser.post('/getAllInformationOfSpecficGreenHouse', greenHouseController.ge
 
 routerUser.post('/getInformationForHomePage', greenHouseController.getInformationForHomePage)
 
+routerUser.post('/getLatAndLongOfOneUser', greenHouseController.getLatAndLongOfOneUser)
+
 module.exports = routerUser

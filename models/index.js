@@ -33,6 +33,7 @@ db.sequelize = sequelize
 
 db.users = require('./users.js')(sequelize, DataTypes)
 db.notifications = require('./notifications.js')(sequelize, DataTypes)
+db.greenhouses = require('./greenhouses.js')(sequelize, DataTypes)
 
 // 1. One to Many associations
 db.users.hasMany(db.notifications,{
@@ -42,10 +43,21 @@ db.users.hasMany(db.notifications,{
 
 });
 
+db.users.hasMany(db.greenhouses, {
+    foreignKey: 'User_Id',
+    onDelete: "cascade",
+    as: 'greenhouse',
+})
+
 db.notifications.belongsTo(db.users, {
     foreignKey: 'User_Id',
     as: 'user' 
 });
+
+db.greenhouses.belongsTo(db.users, {
+    foreignKey: 'User_Id',
+    as: 'user'
+})
 
 db.sequelize.sync({
     force: false
