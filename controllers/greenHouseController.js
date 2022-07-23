@@ -269,7 +269,7 @@ const getLatAndLongOfOneUser = async (req, res) => {
         // We notice the firebase function take a time to resend our data so for this reason we make a timer for 1 second
         // To allow our program a time for get what's we need
         await sleep(1000)
-        console.log(finalResultObject)
+        console.log(finalResultObjectOfPosition)
         res.status(200).send({
             Result: finalResultObjectOfPosition,
             Id_AgronoMek: finalResultObjectOfName
