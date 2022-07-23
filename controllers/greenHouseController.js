@@ -254,23 +254,25 @@ const getLatAndLongOfOneUser = async (req, res) => {
         //     });
         //     // console.log(finalResultObject)
         // });
-        let finalResultObject=[];
+        let finalResultObjectOfPosition=[];
+        let finalResultObjectOfName=[];
         for(var i=0;i<greenhouse.length;i++){
             var dbFireBase = admin.database();
             var oneGreenHouse = dbFireBase.ref('AgronoMekDB/'+ greenhouse[i].nameGreenHouse + '/')
             oneGreenHouse.once('value', function(snap){
                 console.log(snap.val().Position)
-                finalResultObject.push(snap.val().Position)
+                finalResultObjectOfPosition.push(snap.val().Position)
                 // console.log(finalResultObject)
-
             });
+            finalResultObjectOfName.push(greenhouse[i].nameGreenHouse)
         }
         // We notice the firebase function take a time to resend our data so for this reason we make a timer for 1 second
         // To allow our program a time for get what's we need
         await sleep(1000)
         console.log(finalResultObject)
         res.status(200).send({
-            Result: finalResultObject
+            Result: finalResultObjectOfPosition,
+            Id_AgronoMek: finalResultObjectOfName
         })
     }
     catch(e){
